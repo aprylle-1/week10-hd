@@ -101,14 +101,10 @@ jobs:
       - create_staging_environment
     uses: ./.github/workflows/backend_cd.yml
     with:
-      aks_cluster_name: ${{ env.AZURE_CLUSTER_NAME }}
-      aks_resource_group: ${{ env.RESOURCE_GROUP }}
+      aks_cluster_name: 'week10-aks-aprylle'
+      aks_resource_group: 'week10-rg-aprylle'
       aks_acr_name: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
       aks_storage_name: st${{ needs.set_image_tag.outputs.STORAGE_TAG }}
       aks_namespace: staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-    env: 
-      RESOURCE_GROUP: 'week10-rg-aprylle'
-      AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
-      AZURE_CLUSTER_NAME: 'week10-aks-aprylle'
