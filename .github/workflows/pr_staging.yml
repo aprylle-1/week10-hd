@@ -35,7 +35,7 @@ jobs:
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
           PR_SHA=${GITHUB_SHA::7}
-          IMAGE_TAG="${PR_NUMBER}-${PR_SHA}"
+          IMAGE_TAG="pr-${PR_NUMBER}-${PR_SHA}"
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Set STAGING_TAG
@@ -43,7 +43,7 @@ jobs:
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
           PR_SHA=${GITHUB_SHA::7}
-          STAGING_TAG="staging-${PR_NUMBER}-${PR_SHA}"
+          STAGING_TAG="staging-pr-${PR_NUMBER}-${PR_SHA}"
           echo "STAGING_TAG=$STAGING_TAG" >> $GITHUB_OUTPUT
   
   # Runs lint and tests for backend and pushes backend images to repository
