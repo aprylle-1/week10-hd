@@ -19,7 +19,6 @@ on:
 
 env: 
   RESOURCE_GROUP: 'week10-rg-aprylle'
-  STAGING_STORAGE_NAME: 'staging'
   AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
   LOCATION: eastus
   AZURE_CLUSTER_NAME: 'week10-aks-aprylle'
@@ -85,7 +84,7 @@ jobs:
     - name: Create Azure Storage Account
       run: |
         az storage account create \
-          --name ${{ env.STAGING_STORAGE_NAME }}${{ needs.set_image_tag.outputs.STORAGE_TAG }} \
+          --name st${{ needs.set_image_tag.outputs.STORAGE_TAG }} \
           --resource-group ${{ env.RESOURCE_GROUP }} \
           --location ${{ env.LOCATION }} \
           --sku Standard_LRS
