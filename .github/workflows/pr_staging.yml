@@ -19,11 +19,13 @@ on:
 
 env: 
   RESOURCE_GROUP: 'week10-rg-aprylle'
-  STAGING_STORAGE_NAME: 'aprylletempstorage'
+  STAGING_STORAGE_NAME: 'staging'
   AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
   LOCATION: eastus
+  AZURE_CLUSTER_NAME: 'week10-aks-aprylle'
 
 jobs:
+  # Outputs immutable image tags
   set_image_tag:
     runs-on: ubuntu-latest
     outputs:
@@ -31,8 +33,11 @@ jobs:
     steps:
       - name: Set IMAGE_TAG
         id: set_tag
-        run: echo "IMAGE_TAG=${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+        run: |
+          echo "IMAGE_TAG=${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+          echo "STORAGE_TAG=${GITHUB_SHA::7}${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
   
+  # Runs lint and tests for backend and pushes backend images to repository
   test_and_push_backend:
     needs: set_image_tag
     uses: ./.github/workflows/backend_ci.yml
@@ -42,6 +47,7 @@ jobs:
       AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
+  # Pushes frontend image to repository
   push_frontend:
     needs: [test_and_push_backend, set_image_tag]
     uses: ./.github/workflows/frontend_ci.yml
@@ -50,3 +56,39 @@ jobs:
     secrets:
       AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+
+  create_staging_environment:
+    needs: 
+      - test_and_push_backend
+      - push_frontend
+      - set_image_tag
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set Kubernetes context (get AKS credentials)
+      run: |
+          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.AZURE_CLUSTER_NAME }} --overwrite-existing
+    
+    - name: Create Staging Namespace
+      run: |
+        kubectl delete namespace staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }} --ignore-not-found
+        kubectl wait --for=delete namespace/staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }} --timeout=120s || true
+        kubectl create namespace staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }}
+    
+    - name: Create Azure Storage Account
+      run: |
+        az storage account create \
+          --name ${{ env.STAGING_STORAGE_NAME }}${{ needs.set_image_tag.outputs.STORAGE_TAG }} \
+          --resource-group ${{ env.RESOURCE_GROUP }} \
+          --location ${{ env.LOCATION }} \
+          --sku Standard_LRS
+
+    - name: Logout from Azure
+      run: az logout
