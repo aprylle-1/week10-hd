@@ -29,17 +29,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       IMAGE_TAG: ${{ steps.set_image_tag.outputs.IMAGE_TAG }}
-      STORAGE_TAG: ${{ steps.set_storage_tag.outputs.STORAGE_TAG }}
       STAGING_TAG: ${{ steps.set_staging_tag.outputs.STAGING_TAG }}
     steps:
       - name: Set IMAGE_TAG
         id: set_image_tag
         run: echo "IMAGE_TAG=${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
-      
-      - name: Set STORAGE_TAG
-        id: set_storage_tag
-        run: echo "STORAGE_TAG=st${GITHUB_SHA::7}${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
-      
+        
       - name: Set STAGING_TAG
         id: set_staging_tag
         run: echo "STAGING_TAG=staging-${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
@@ -89,14 +84,6 @@ jobs:
         kubectl delete namespace ${{ needs.set_image_tag.outputs.STAGING_TAG }} --ignore-not-found
         kubectl wait --for=delete namespace/${{ needs.set_image_tag.outputs.STAGING_TAG }} --timeout=120s || true
         kubectl create namespace ${{ needs.set_image_tag.outputs.STAGING_TAG }}
-    
-    - name: Create Azure Storage Account
-      run: |
-        az storage account create \
-          --name "${{ needs.set_image_tag.outputs.STORAGE_TAG }}" \
-          --resource-group "${{ env.RESOURCE_GROUP }}" \
-          --location "${{ env.LOCATION }}" \
-          --sku Standard_LRS
 
     - name: Logout from Azure
       run: az logout
@@ -108,7 +95,7 @@ jobs:
     with:
       aks_cluster_name: 'week10-aks-aprylle'
       aks_resource_group: 'week10-rg-aprylle'
-      aks_storage_name: ${{ needs.set_image_tag.outputs.STORAGE_TAG }}
+      aks_storage_name: 'apryllestagingstorage'
       aks_namespace: ${{ needs.set_image_tag.outputs.STAGING_TAG }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
