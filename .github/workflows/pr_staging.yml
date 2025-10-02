@@ -108,3 +108,7 @@ jobs:
       aks_namespace: staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+    env: 
+      RESOURCE_GROUP: 'week10-rg-aprylle'
+      AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+      AZURE_CLUSTER_NAME: 'week10-aks-aprylle'
