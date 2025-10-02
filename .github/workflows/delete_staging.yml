@@ -1,0 +1,50 @@
+# week10/.github/workflows/delete_staging.yml
+name: Delete Staging Namespace for Closed PR
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+env:
+  RESOURCE_GROUP: 'week10-rg-aprylle'
+  AZURE_CLUSTER_NAME: 'week10-aks-aprylle'
+
+jobs:
+  delete_staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set Kubernetes context (get AKS credentials)
+        run: |
+          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.AZURE_CLUSTER_NAME }} --overwrite-existing
+
+      - name: Compute STAGING_TAG
+        run: |
+          # Get PR number
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          
+          # Get PR head SHA (first 7 characters)
+          PR_SHA=${{ github.event.pull_request.head.sha::7 }}
+          
+          # Compute namespace name
+          STAGING_TAG="staging-pr-${PR_NUMBER}-${PR_SHA}"
+          echo "STAGING_TAG=$STAGING_TAG" >> $GITHUB_ENV
+          echo "Computed staging namespace: $STAGING_TAG"
+
+      - name: Delete Staging Namespace
+        run: |
+          kubectl delete namespace ${{ env.STAGING_TAG }} --ignore-not-found
+          kubectl wait --for=delete namespace/${{ env.STAGING_TAG }} --timeout=120s || true
+
+      - name: Logout from Azure
+        run: az logout
