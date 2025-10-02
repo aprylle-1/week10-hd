@@ -30,6 +30,7 @@ jobs:
     outputs:
       IMAGE_TAG: ${{ steps.set_image_tag.outputs.IMAGE_TAG }}
       STORAGE_TAG: ${{ steps.set_storage_tag.outputs.IMAGE_TAG }}
+      AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
     steps:
       - name: Set IMAGE_TAG
         id: set_image_tag
@@ -103,7 +104,7 @@ jobs:
     with:
       aks_cluster_name: 'week10-aks-aprylle'
       aks_resource_group: 'week10-rg-aprylle'
-      aks_acr_name: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+      aks_acr_name: ${{ needs.set_image_tag.outputs.AZURE_CONTAINER_REGISTRY }}
       aks_storage_name: st${{ needs.set_image_tag.outputs.STORAGE_TAG }}
       aks_namespace: staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }}
     secrets:
