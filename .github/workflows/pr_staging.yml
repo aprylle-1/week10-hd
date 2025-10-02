@@ -107,6 +107,7 @@ jobs:
     needs:
       - deploy_staging_backend
       - set_image_tag
+    uses: ./.github/workflows/frontend_cd.yml
     with: 
       product_api_ip: ${{ needs.deploy_backend.outputs.PRODUCT_API_IP }}
       order_api_ip: ${{ needs.deploy_backend.outputs.ORDER_API_IP }}
