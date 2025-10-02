@@ -118,4 +118,4 @@ jobs:
       image_tag: ${{ needs.set_image_tag.outputs.IMAGE_TAG }}
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      AZURE_CONTAINER_REGISTRY: $ {{ secres.AZURE_CONTAINER_REGISTRY }}
+      AZURE_CONTAINER_REGISTRY: $ {{ secrets.AZURE_CONTAINER_REGISTRY }}
