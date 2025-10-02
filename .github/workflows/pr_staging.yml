@@ -86,9 +86,9 @@ jobs:
     
     - name: Create Staging Namespace
       run: |
-        kubectl delete namespace staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }} --ignore-not-found
-        kubectl wait --for=delete namespace/staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }} --timeout=120s || true
-        kubectl create namespace staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }}
+        kubectl delete namespace ${{ needs.set_image_tag.outputs.STAGING_TAG }} --ignore-not-found
+        kubectl wait --for=delete namespace/${{ needs.set_image_tag.outputs.STAGING_TAG }} --timeout=120s || true
+        kubectl create namespace ${{ needs.set_image_tag.outputs.STAGING_TAG }}
     
     - name: Create Azure Storage Account
       run: |
