@@ -2,10 +2,6 @@ name: Automated Deployment to Production Environment
 
 on: 
   workflow_dispatch:
-  
-  push:
-    branches:
-      - main
 
 env:
   AZURE_CLUSTER_NAME: week10-aks-cluster
@@ -19,7 +15,7 @@ jobs:
     uses: ./.github/workflows/backend_cd.yml
     with:
       aks_cluster_name: 'week10-aks-cluster'
-      aks_resource_group: 'week10-rg-staging'
+      aks_resource_group: 'week10-rg-aprylle'
       aks_acr_name: 'sit722devopsacraprylle'
       aks_storage_name: 'ajprodweek10storage'
       aks_namespace: 'production'

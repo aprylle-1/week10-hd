@@ -1,0 +1,34 @@
+#week10/.guthub/workflows/deploy_prod.yml
+
+#This workflow does the following:
+# - Gets triggered when there is a PR to main
+# - Builds and pushes the images with immutable tags
+# - Deploys the images into a staging environment
+# - Waits for the PR to be approved before deleting staging
+# - Triggers the deploy to production workflow with same image tag
+
+#GOAL: Be able to identify which image current PROD has using immutable images
+name: PR to Main CI/CD
+
+# on:
+#   pull_request:
+#     branches: [main]
+
+on:
+  workflow_dispatch:
+
+env: 
+  IMAGE_TAG: ${{ github.sha }}-${{ github.run_id }}
+  RESOURCE_GROUP: 'week10-rg-aprylle'
+  STAGING_STORAGE_NAME: 'aprylletempstorage'
+  AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+  LOCATION: eastus
+
+jobs:
+  test_and_push_backend:
+    uses: ./.github/workflows/backend_ci.yml
+    with:
+      IMAGE_TAG: ${{ IMAGE_TAG }}
+    secrets:
+      AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}

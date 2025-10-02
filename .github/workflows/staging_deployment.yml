@@ -3,9 +3,9 @@ name: Automated Deployment to Staging Environment
 on: 
   workflow_dispatch:
   
-  push:
-    branches:
-      - testing
+  # push:
+  #   branches:
+  #     - testing
 
 env:
   AZURE_CLUSTER_NAME: week10-aks-cluster
