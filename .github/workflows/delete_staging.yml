@@ -34,7 +34,7 @@ jobs:
           PR_NUMBER=${{ github.event.pull_request.number }}
           
           # Get PR head SHA (first 7 characters)
-          PR_SHA=${{ github.event.pull_request.head.sha::7 }}
+          PR_SHA=$(echo "${{ github.event.pull_request.head.sha }}" | cut -c1-7)
           
           # Compute namespace name
           STAGING_TAG="staging-pr-${PR_NUMBER}-${PR_SHA}"
