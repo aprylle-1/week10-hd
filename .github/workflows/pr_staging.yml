@@ -30,6 +30,7 @@ jobs:
     outputs:
       IMAGE_TAG: ${{ steps.set_image_tag.outputs.IMAGE_TAG }}
       STORAGE_TAG: ${{ steps.set_storage_tag.outputs.STORAGE_TAG }}
+      STAGING_TAG: ${{ steps.set_staging_tag.outputs.STAGING_TAG }}
     steps:
       - name: Set IMAGE_TAG
         id: set_image_tag
@@ -37,7 +38,11 @@ jobs:
       
       - name: Set STORAGE_TAG
         id: set_storage_tag
-        run: echo "STORAGE_TAG=${GITHUB_SHA::7}${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+        run: echo "STORAGE_TAG=st${GITHUB_SHA::7}${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+      
+      - name: Set STAGING_TAG
+        id: set_staging_tag
+        run: echo "STAGING_TAG=staging-${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
   
   # Runs lint and tests for backend and pushes backend images to repository
   test_and_push_backend:
@@ -103,7 +108,7 @@ jobs:
     with:
       aks_cluster_name: 'week10-aks-aprylle'
       aks_resource_group: 'week10-rg-aprylle'
-      aks_storage_name: "st${{ needs.set_image_tag.outputs.STORAGE_TAG }}"
-      aks_namespace: "staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }}"
+      aks_storage_name: '${{ needs.set_image_tag.outputs.STORAGE_TAG }}'
+      aks_namespace: '${{ needs.set_image_tag.outputs.STAGING_TAG }}'
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
