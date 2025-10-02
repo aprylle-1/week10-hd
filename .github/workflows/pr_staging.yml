@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       IMAGE_TAG: ${{ steps.set_image_tag.outputs.IMAGE_TAG }}
-      STORAGE_TAG: ${{ steps.set_storage_tag.outputs.IMAGE_TAG }}
+      STORAGE_TAG: ${{ steps.set_storage_tag.outputs.STORAGE_TAG }}
     steps:
       - name: Set IMAGE_TAG
         id: set_image_tag
@@ -88,9 +88,9 @@ jobs:
     - name: Create Azure Storage Account
       run: |
         az storage account create \
-          --name st${{ needs.set_image_tag.outputs.STORAGE_TAG }} \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
-          --location ${{ env.LOCATION }} \
+          --name "st${{ needs.set_image_tag.outputs.STORAGE_TAG }}" \
+          --resource-group "${{ env.RESOURCE_GROUP }}" \
+          --location "${{ env.LOCATION }}" \
           --sku Standard_LRS
 
     - name: Logout from Azure
