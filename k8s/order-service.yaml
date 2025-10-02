@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: order-service-container
-        image: sit722devopsacraprylle.azurecr.io/week10_order_service:_IMAGE_TAG_
+        image: "sit722devopsacraprylle.azurecr.io/week10_order_service:_IMAGE_TAG_"
         imagePullPolicy: Always
         ports:
         - containerPort: 8001
