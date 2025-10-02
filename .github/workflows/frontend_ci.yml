@@ -9,6 +9,7 @@ on:
     inputs:
       IMAGE_TAG:
         required: true
+        type: string
     secrets:
       AZURE_CONTAINER_REGISTRY:
         required: true
