@@ -104,7 +104,6 @@ jobs:
     with:
       aks_cluster_name: 'week10-aks-aprylle'
       aks_resource_group: 'week10-rg-aprylle'
-      aks_acr_name: ${{ needs.set_image_tag.outputs.AZURE_CONTAINER_REGISTRY }}
       aks_storage_name: st${{ needs.set_image_tag.outputs.STORAGE_TAG }}
       aks_namespace: staging-${{ needs.set_image_tag.outputs.IMAGE_TAG }}
     secrets:

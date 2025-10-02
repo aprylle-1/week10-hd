@@ -9,9 +9,6 @@ on:
       aks_resource_group:
         required: true
         type: string
-      aks_acr_name:
-        required: true
-        type: string
       aks_storage_name:
         required: true
         type: string
