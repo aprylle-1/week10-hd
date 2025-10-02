@@ -93,7 +93,7 @@ jobs:
     - name: Create Azure Storage Account
       run: |
         az storage account create \
-          --name "st${{ needs.set_image_tag.outputs.STORAGE_TAG }}" \
+          --name "${{ needs.set_image_tag.outputs.STORAGE_TAG }}" \
           --resource-group "${{ env.RESOURCE_GROUP }}" \
           --location "${{ env.LOCATION }}" \
           --sku Standard_LRS
