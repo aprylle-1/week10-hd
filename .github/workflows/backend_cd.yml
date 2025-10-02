@@ -15,6 +15,9 @@ on:
       aks_namespace:
         required: true
         type: string
+      image_tag:
+        required: true
+        type: string
     secrets:
       AZURE_CREDENTIALS:
         required: true
@@ -69,6 +72,12 @@ jobs:
         run: |
             sed -i "s|_AZURE_STORAGE_ACCOUNT_NAME_|${{ env.BASE64_NAME }}|g" k8s/secrets.yaml
             sed -i "s|_AZURE_STORAGE_ACCOUNT_KEY_|${{ env.BASE64_KEY }}|g" k8s/secrets.yaml
+
+      - name: Inject Image Tag Into Manifest Files
+        run: |
+            sed -i "s|_IMAGE_TAG_|${{ inputs.image_tag }}|g" k8s/order-service.yaml
+            sed -i "s|_IMAGE_TAG_|${{ inputs.image_tag }}|g" k8s/product-service.yaml
+            sed -i "s|_IMAGE_TAG_|${{ inputs.image_tag }}|g" k8s/customer-service.yaml
       
       - name: Deploy Backend Infrastructure (Namespace, ConfigMaps, Secrets, Databases)
         run: |
