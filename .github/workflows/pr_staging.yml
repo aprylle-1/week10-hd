@@ -109,9 +109,9 @@ jobs:
       - set_image_tag
     uses: ./.github/workflows/frontend_cd.yml
     with: 
-      product_api_ip: ${{ needs.deploy_backend.outputs.PRODUCT_API_IP }}
-      order_api_ip: ${{ needs.deploy_backend.outputs.ORDER_API_IP }}
-      customer_api_ip: ${{ needs.deploy_backend.outputs.CUSTOMER_API_IP }}
+      product_api_ip: ${{ needs.deploy_staging_backend.outputs.PRODUCT_API_IP }}
+      order_api_ip: ${{ needs.deploy_staging_backend.outputs.ORDER_API_IP }}
+      customer_api_ip: ${{ needs.deploy_staging_backend.outputs.CUSTOMER_API_IP }}
       aks_cluster_name: 'week10-aks-aprylle'
       aks_resource_group: 'week10-rg-aprylle'
       aks_namespace: ${{ needs.set_image_tag.outputs.STAGING_TAG }}
@@ -119,3 +119,4 @@ jobs:
     secrets:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
       AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+  
