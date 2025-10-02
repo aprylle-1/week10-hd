@@ -10,9 +10,9 @@
 #GOAL: Be able to identify which image current PROD has using immutable images
 name: PR to Main CI/CD
 
-# on:
-#   pull_request:
-#     branches: [main]
+on:
+  pull_request:
+    branches: [main]
 
 on:
   workflow_dispatch:
@@ -33,11 +33,19 @@ jobs:
     steps:
       - name: Set IMAGE_TAG
         id: set_image_tag
-        run: echo "IMAGE_TAG=${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_SHA=${GITHUB_SHA::7}
+          IMAGE_TAG="${PR_NUMBER}-${PR_SHA}"
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Set STAGING_TAG
         id: set_staging_tag
-        run: echo "STAGING_TAG=staging-${GITHUB_SHA::7}-${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_SHA=${GITHUB_SHA::7}
+          STAGING_TAG="staging-${PR_NUMBER}-${PR_SHA}"
+          echo "STAGING_TAG=$STAGING_TAG" >> $GITHUB_OUTPUT
   
   # Runs lint and tests for backend and pushes backend images to repository
   test_and_push_backend:
@@ -111,7 +119,7 @@ jobs:
     with: 
       product_api_ip: ${{ needs.deploy_staging_backend.outputs.PRODUCT_API_IP }}
       order_api_ip: ${{ needs.deploy_staging_backend.outputs.ORDER_API_IP }}
-      customer_api_ip: ${{ needs.deploy_staging_backend.outputs.CUSTOMER_API_IP }}
+      customer_api_ip: ${{ needs.deploy_stagingbackend.outputs.CUSTOMER_API_IP }}
       aks_cluster_name: 'week10-aks-aprylle'
       aks_resource_group: 'week10-rg-aprylle'
       aks_namespace: ${{ needs.set_image_tag.outputs.STAGING_TAG }}
