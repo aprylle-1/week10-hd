@@ -67,4 +67,4 @@ jobs:
           echo "Testing Frontend at $FRONTEND_IP"
           curl -f http://${{ env.FRONTEND_IP }}:80 || exit 1
 
-#test
+#test + 
