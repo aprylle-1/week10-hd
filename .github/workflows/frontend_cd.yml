@@ -38,8 +38,6 @@ on:
 jobs:
   deploy_frontend:
     runs-on: ubuntu-latest
-    environment: Production
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -76,8 +74,8 @@ jobs:
       # Build and Push Docker image for Frontend
       - name: Build and Push Frontend Image
         run: |
-          docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/week10_frontend:${{ inputs.image_tag }} ./frontend/
-          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/week10_frontend:${{ inputs.image_tag }}
+          docker build -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}.azurecr.io/week10_frontend:${{ inputs.image_tag }} ./frontend/
+          docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}.azurecr.io/week10_frontend:${{ inputs.image_tag }}
 
       - name: Set Kubernetes context (get AKS credentials)
         uses: azure/aks-set-context@v3
