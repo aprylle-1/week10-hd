@@ -6,6 +6,9 @@ on:
   workflow_dispatch:
 
   workflow_call:
+    inputs:
+      IMAGE_TAG:
+        required: true
     secrets:
       AZURE_CONTAINER_REGISTRY:
         required: true
@@ -36,8 +39,8 @@ jobs:
     # Build and Push Docker image for Frontend
     - name: Build and Push Frontend Image
       run: |
-        docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}/week10_frontend:latest ./frontend/
-        docker push ${{ env.AZURE_CONTAINER_REGISTRY }}/week10_frontend:latest
+        docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/week10_frontend:${{ inputs.IMAGE_TAG }} ./frontend/
+        docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/week10_frontend:${{ inputs.IMAGE_TAG }}
 
     # Logout from Azure for security (runs even if image push fails)
     - name: Logout from Azure
