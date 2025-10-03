@@ -11,6 +11,9 @@
 name: PR to Main CI/CD
 
 on:
+  push:
+    branches:
+      - feature/**
   pull_request:
     branches: [main]
 
