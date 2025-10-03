@@ -135,7 +135,7 @@ jobs:
       - set_image_tag
     runs-on: ubuntu-latest
     permissions:
-      pull_requests: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - name: Print Image Name on PR Comment
