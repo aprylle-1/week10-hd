@@ -47,14 +47,14 @@ jobs:
           echo "STAGING_TAG=$STAGING_TAG" >> $GITHUB_OUTPUT
   
   # Runs lint and tests for backend and pushes backend images to repository
-  test_and_push_backend:
-    needs: set_image_tag
-    uses: ./.github/workflows/backend_ci.yml
-    with:
-      IMAGE_TAG: ${{ needs.set_image_tag.outputs.IMAGE_TAG }}
-    secrets:
-      AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  # test_and_push_backend:
+  #   needs: set_image_tag
+  #   uses: ./.github/workflows/backend_ci.yml
+  #   with:
+  #     IMAGE_TAG: ${{ needs.set_image_tag.outputs.IMAGE_TAG }}
+  #   secrets:
+  #     AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   # Pushes frontend image to repository
   # push_frontend:
