@@ -57,74 +57,86 @@ jobs:
       AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   # Pushes frontend image to repository
-  push_frontend:
-    needs:
-      - set_image_tag
-    uses: ./.github/workflows/frontend_ci.yml
-    with:
-      IMAGE_TAG: ${{ needs.set_image_tag.outputs.IMAGE_TAG }}
-    secrets:
-      AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  # push_frontend:
+  #   needs:
+  #     - set_image_tag
+  #   uses: ./.github/workflows/frontend_ci.yml
+  #   with:
+  #     IMAGE_TAG: ${{ needs.set_image_tag.outputs.IMAGE_TAG }}
+  #   secrets:
+  #     AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
 
   # Dynamically creates AKS namespace + Azure Storage Account for Staging Environment
-  create_staging_environment:
-    needs: 
-      - test_and_push_backend
-      - push_frontend
-      - set_image_tag
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+  # create_staging_environment:
+  #   needs: 
+  #     - test_and_push_backend
+  #     - push_frontend
+  #     - set_image_tag
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Checkout repository
+  #     uses: actions/checkout@v4
 
-    - name: Azure Login
-      uses: azure/login@v1
-      with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #   - name: Azure Login
+  #     uses: azure/login@v1
+  #     with:
+  #       creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Set Kubernetes context (get AKS credentials)
-      run: |
-          az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.AZURE_CLUSTER_NAME }} --overwrite-existing
+  #   - name: Set Kubernetes context (get AKS credentials)
+  #     run: |
+  #         az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.AZURE_CLUSTER_NAME }} --overwrite-existing
     
-    - name: Create Staging Namespace
-      run: |
-        kubectl delete namespace ${{ needs.set_image_tag.outputs.STAGING_TAG }} --ignore-not-found
-        kubectl wait --for=delete namespace/${{ needs.set_image_tag.outputs.STAGING_TAG }} --timeout=120s || true
-        kubectl create namespace ${{ needs.set_image_tag.outputs.STAGING_TAG }}
+  #   - name: Create Staging Namespace
+  #     run: |
+  #       kubectl delete namespace ${{ needs.set_image_tag.outputs.STAGING_TAG }} --ignore-not-found
+  #       kubectl wait --for=delete namespace/${{ needs.set_image_tag.outputs.STAGING_TAG }} --timeout=120s || true
+  #       kubectl create namespace ${{ needs.set_image_tag.outputs.STAGING_TAG }}
 
-    - name: Logout from Azure
-      run: az logout
+  #   - name: Logout from Azure
+  #     run: az logout
   
-  deploy_staging_backend:
-    needs:
-      - create_staging_environment
-      - set_image_tag
-    uses: ./.github/workflows/backend_cd.yml
-    with:
-      aks_cluster_name: 'week10-aks-aprylle'
-      aks_resource_group: 'week10-rg-aprylle'
-      aks_storage_name: 'apryllestagingstorage'
-      aks_namespace: ${{ needs.set_image_tag.outputs.STAGING_TAG }}
-      image_tag: ${{ needs.set_image_tag.outputs.IMAGE_TAG }}
-    secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  # deploy_staging_backend:
+  #   needs:
+  #     - create_staging_environment
+  #     - set_image_tag
+  #   uses: ./.github/workflows/backend_cd.yml
+  #   with:
+  #     aks_cluster_name: 'week10-aks-aprylle'
+  #     aks_resource_group: 'week10-rg-aprylle'
+  #     aks_storage_name: 'apryllestagingstorage'
+  #     aks_namespace: ${{ needs.set_image_tag.outputs.STAGING_TAG }}
+  #     image_tag: ${{ needs.set_image_tag.outputs.IMAGE_TAG }}
+  #   secrets:
+  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
   
-  deploy_staging_frontend:
+  # deploy_staging_frontend:
+  #   needs:
+  #     - deploy_staging_backend
+  #     - set_image_tag
+  #   uses: ./.github/workflows/frontend_cd.yml
+  #   with: 
+  #     product_api_ip: ${{ needs.deploy_staging_backend.outputs.PRODUCT_API_IP }}
+  #     order_api_ip: ${{ needs.deploy_staging_backend.outputs.ORDER_API_IP }}
+  #     customer_api_ip: ${{ needs.deploy_stagingbackend.outputs.CUSTOMER_API_IP }}
+  #     aks_cluster_name: 'week10-aks-aprylle'
+  #     aks_resource_group: 'week10-rg-aprylle'
+  #     aks_namespace: ${{ needs.set_image_tag.outputs.STAGING_TAG }}
+  #     image_tag: ${{ needs.set_image_tag.outputs.IMAGE_TAG }}
+  #   secrets:
+  #     AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
+  #     AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+  
+  persist_image_tag:
     needs:
-      - deploy_staging_backend
-      - set_image_tag
-    uses: ./.github/workflows/frontend_cd.yml
-    with: 
-      product_api_ip: ${{ needs.deploy_staging_backend.outputs.PRODUCT_API_IP }}
-      order_api_ip: ${{ needs.deploy_staging_backend.outputs.ORDER_API_IP }}
-      customer_api_ip: ${{ needs.deploy_stagingbackend.outputs.CUSTOMER_API_IP }}
-      aks_cluster_name: 'week10-aks-aprylle'
-      aks_resource_group: 'week10-rg-aprylle'
-      aks_namespace: ${{ needs.set_image_tag.outputs.STAGING_TAG }}
-      image_tag: ${{ needs.set_image_tag.outputs.IMAGE_TAG }}
-    secrets:
-      AZURE_CREDENTIALS: ${{ secrets.AZURE_CREDENTIALS }}
-      AZURE_CONTAINER_REGISTRY: ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+      set_image_tag:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Print Image Name on PR Comment
+          run: |
+            gh pr comment ${{ github.event.pull_request.number }} \
+            --body "✅ Image built with tag: \`${{ needs.set_image_tag.outputs.IMAGE_TAG }}\`"
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
 #test
