@@ -131,8 +131,9 @@ jobs:
     needs:
       - set_image_tag
     runs-on: ubuntu-latest
-    uses: actions/checkout@v4
+
     steps:
+      - uses: actions/checkout@v4
       - name: Print Image Name on PR Comment
         run: |
           gh pr comment ${{ github.event.pull_request.number }} \
