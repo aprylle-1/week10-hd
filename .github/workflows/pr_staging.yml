@@ -129,14 +129,14 @@ jobs:
   
   persist_image_tag:
     needs:
-      set_image_tag:
-      runs-on: ubuntu-latest
-      steps:
-        - name: Print Image Name on PR Comment
-          run: |
-            gh pr comment ${{ github.event.pull_request.number }} \
-            --body "✅ Image built with tag: \`${{ needs.set_image_tag.outputs.IMAGE_TAG }}\`"
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - set_image_tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Image Name on PR Comment
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} \
+          --body "✅ Image built with tag: \`${{ needs.set_image_tag.outputs.IMAGE_TAG }}\`"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
 #test
